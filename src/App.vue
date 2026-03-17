@@ -33,12 +33,13 @@ import Weather from './components/Weather.vue'
 import LinkCard from './components/LinkCard.vue'
 import SearchBar from './components/SearchBar.vue' 
 
-// 正确的 Vite 静态资源导入方式
+// 静态资源导入
 import baiduIcon from './assets/baidu.svg'
 import chromeIcon from './assets/chrome.svg'
 import bilibiliIcon from './assets/bilibili.svg'
 import githubIcon from './assets/github.svg'
 
+// 导航数据配置
 const mySites = ref([
   { name: '百度', url: 'https://www.baidu.com', icon: baiduIcon },
   { name: 'Chrome', url: 'https://www.google.com', icon: chromeIcon },
@@ -48,34 +49,45 @@ const mySites = ref([
 </script>
 
 <style>
-/* 保持你原有的样式代码... */
-body, html {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
+/* 全局重置与基础样式 */
+* {
+  box-sizing: border-box;
 }
 
 #app {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 10vh;
   min-height: 100vh;
   width: 100%;
   background: linear-gradient(180deg, #ffffff 0%, #fce4ec 100%);
   background-attachment: fixed;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px;
+  overflow-x: hidden; /* 防止移动端横向滚动 */
 }
 
+/* 导航卡片布局：响应式 Grid 网格 */
 .link-container {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  /* 默认手机端：强制 2 列，每列 100px */
+  grid-template-columns: repeat(2, 100px); 
   gap: 25px;
   justify-content: center;
-  margin-top: 50px;
+  margin-top: 40px;
+  padding: 0 20px;
+  width: 100%;
+  z-index: 10;
 }
 
-/* 粒子动画样式 */
+/* 媒体查询：当屏幕宽度大于 768px (平板/电脑) 时，切换为 4 列 */
+@media (min-width: 768px) {
+  .link-container {
+    grid-template-columns: repeat(4, 100px); 
+  }
+}
+
+/* 背景粒子特效 */
 .particles {
   position: fixed;
   top: 0;
@@ -83,7 +95,7 @@ body, html {
   width: 100%;
   height: 100%;
   z-index: 0;
-  pointer-events: none;
+  pointer-events: none; /* 穿透点击，避免遮挡组件 */
 }
 
 @keyframes super-breathe {
@@ -98,15 +110,11 @@ body, html {
   border-radius: 50%;
   filter: blur(15px);
   animation: super-breathe 25s infinite linear;
+  will-change: transform, opacity; /* 性能优化：提前告知浏览器此元素会发生动画 */
 }
 
-.p1 { width: 120px; height: 120px; top: 10%; left: 5%; animation-duration: 18s; }
-.p2 { width: 250px; height: 250px; bottom: 5%; right: 10%; animation-duration: 30s; }
-.p3 { width: 90px; height: 90px; top: 40%; right: 5%; animation-duration: 22s; }
-.p4 { width: 180px; height: 180px; bottom: 20%; left: 10%; animation-duration: 28s; }
-.p5 { width: 100px; height: 100px; top: 70%; left: 40%; background: rgba(221, 160, 221, 0.3); }
-.p6 { width: 140px; height: 140px; top: 20%; left: 60%; }
-.p7 { width: 70px; height: 70px; bottom: 40%; left: 50%; background: rgba(135, 206, 250, 0.2); }
-
-.search-container { margin: 10px 0 !important; }
+/* 粒子初始位置与大小分布 */
+.p1 { width: 300px; height: 300px; top: 10%; left: 5%; }
+.p2 { width: 400px; height: 400px; top: 50%; left: 60%; animation-delay: -5s; }
+.p3 { width: 250px; height: 250px; top: 70%; left: 10%; animation-delay: -10s; }
 </style>

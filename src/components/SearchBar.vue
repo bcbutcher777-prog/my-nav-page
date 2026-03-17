@@ -16,18 +16,13 @@
 <script setup>
 import { ref } from 'vue';
 
-// 定义响应式变量存储搜索文字
 const searchText = ref('');
 
-// 搜索逻辑
 const handleSearch = () => {
-  // 如果输入内容为空，不执行搜索
+  // 防抖/判空：避免空搜索
   if (!searchText.value.trim()) return;
 
-  // 使用百度搜索接口，直接跳转 URL
   const searchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(searchText.value)}`;
-  
-  // 在当前窗口跳转（如果想在新窗口打开，改用 window.open）
   window.location.href = searchUrl;
 };
 </script>
@@ -38,28 +33,26 @@ const handleSearch = () => {
   width: 100%;
   display: flex;
   justify-content: center;
+  z-index: 10;
 }
-
-/* SearchBar.vue 的样式部分修改 */
 
 .search-box {
   display: flex;
   width: 500px;
   max-width: 90%;
-  background: white; /* 容器背景保持白色 */
-  padding: 0;        /* 修改点 1：把之前的 padding: 5px 改为 0，让内部元素紧贴边缘 */
+  background: white;
   border-radius: 30px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  overflow: hidden;  /* 确保内部元素超出圆角的部分被剪裁 */
+  overflow: hidden; /* 保证内部元素不溢出圆角 */
 }
 
 .search-input {
   flex: 1;
   border: none;
   outline: none;
-  padding: 12px 20px; /* 适当增加高度 */
+  padding: 12px 20px;
   font-size: 16px;
-  background: transparent; /* 修改点 2：背景透明，统一使用容器的白色 */
+  background: transparent;
 }
 
 .search-button {
