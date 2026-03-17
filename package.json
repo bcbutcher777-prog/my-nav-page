@@ -2,11 +2,11 @@
   "name": "vue-demo",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://bcbutcher777-prog.github.io/my-nav-git/", 
+  "homepage": "https://bcbutcher777-prog.github.io/my-nav-page/",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
     "core-js": "^3.8.3",
@@ -16,6 +16,7 @@
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-pwa": "~5.0.0",
-    "@vue/cli-service": "~5.0.0"
+    "@vue/cli-service": "~5.0.0",
+    "gh-pages": "^6.3.0"
   }
 }
