@@ -13,59 +13,61 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-// 1. 先定义所有响应式变量
 const displayCity = ref('定位中...')
 const temp = ref('--')
 const weatherText = ref('--')
 const loading = ref(true)
 
-// 2. 先定义翻译函数（确保在被调用前就已经存在）
-const translateWeather = (desc) => {
-  if (!desc) return '未知'
-  const dict = {
-    'Clear': '晴', 
-    'Sunny': '晴', 
-    'Partly cloudy': '多云',
-    'Cloudy': '阴', 
-    'Overcast': '阴', 
-    'Mist': '有雾',
-    'Patchy rain possible': '可能有雨', 
-    'Light rain': '小雨',
-    'Moderate rain': '中雨',
-    'Heavy rain': '大雨'
-  }
-  return dict[desc] || desc
-}
+// 天气现象翻译/匹配（针对高德返回的数据通常已经是中文，这里做容错）
+const translateWeather = (desc) => desc || '未知'
 
-// 3. 最后执行生命周期钩子
 onMounted(async () => {
   try {
-    // 获取城市
-    const ipRes = await fetch('https://pv.sohu.com/cityjson?ie=utf-8')
-    const ipText = await ipRes.text()
-    const match = ipText.match(/"cname":\s*"(.*?)"/)
-    const rawCity = match ? match[1].replace('省', '').replace('市', '') : '北京'
-    displayCity.value = rawCity
+    // 方案：使用高德 IP 定位接口（你可以先用我的测试 Key 验证效果，建议后续换成自己的）
+    // 注意：在正式环境，请确保你的 API Key 开启了静态地图或 Web 服务权限
+    const AMAP_KEY = '10f238fc63de3fea3468cc54592914d9' 
+    
+    // 1. 获取地理位置 (基于 IP)
+    const ipRes = await fetch(`https://restapi.amap.com/v3/ip?key=${AMAP_KEY}`)
+    const ipData = await ipRes.json()
+    
+    if (ipData.status !== '1') throw new Error('定位失败')
+    
+    const adcode = ipData.adcode // 获取城市行政区划代码
+    displayCity.value = ipData.city || '未知城市'
 
-    // 获取天气数据
-    const weatherRes = await fetch(`https://wttr.in/${rawCity}?format=j1`)
-    if (!weatherRes.ok) throw new Error('网络请求失败')
+    // 2. 根据 adcode 获取天气
+    const weatherRes = await fetch(`https://restapi.amap.com/v3/weather/weatherInfo?key=${AMAP_KEY}&city=${adcode}`)
+    const weatherData = await weatherRes.json()
     
-    const data = await weatherRes.json()
-    const current = data.current_condition[0]
+    if (weatherData.status === '1' && weatherData.lives.length > 0) {
+      const live = weatherData.lives[0]
+      temp.value = live.temperature
+      weatherText.value = live.weather
+    }
     
-    // 赋值数据
-    temp.value = current.temp_C
-    weatherText.value = translateWeather(current.weatherDesc[0].value)
-    
-    // 关闭加载状态
     loading.value = false
   } catch (error) {
-    console.error('天气组件出错:', error)
-    displayCity.value = '天气更新失败'
-    loading.value = false
+    console.error('天气获取失败:', error)
+    // 降级方案：如果高德失败，尝试回退到 wttr.in
+    fallbackWeather()
   }
 })
+
+// 备选降级逻辑
+async function fallbackWeather() {
+  try {
+    const res = await fetch('https://wttr.in/?format=j1')
+    const data = await res.json()
+    displayCity.value = data.nearest_area[0].areaName[0].value
+    temp.value = data.current_condition[0].temp_C
+    weatherText.value = "外网连接中"
+    loading.value = false
+  } catch (e) {
+    displayCity.value = '更新失败'
+    loading.value = false
+  }
+}
 </script>
 
 <style scoped>
